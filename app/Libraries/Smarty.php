@@ -45,7 +45,7 @@
         /**
          * @var bool
          */
-        protected bool $cacheOn;
+        protected $cacheOn;
 
         /**
          * @var int
@@ -94,15 +94,23 @@
 
         public function Init () 
         {
-            $AllTemplate = [];
+            $Templates = [];
             $RootFolder = $this->templatesDir;
-            $Folders = array_diff(scandir($RootFolder), ['..', '.']);
-            foreach ($Folders AS $Folder){
-                $AllTemplate[$Folder] = $this->templatesDir . DIRECTORY_SEPARATOR . $Folder;
+            $CountFiles = count(glob($RootFolder));
+            $isEmpty = ($CountFiles) > 1 ? TRUE : FALSE;
+            if(!$isEmpty){
+                $Folders = array_diff(scandir($RootFolder), ['..', '.', 'index.html', 'index.php']);
+                foreach ($Folders AS $Folder){
+                    $Templates[$Folder] = $this->templatesDir . DIRECTORY_SEPARATOR . $Folder;
+                }
             }
-            $this->Smarty->setTemplateDir(["Default" => APPPATH . "Views"]);
-            if($AllTemplate) 
-                $this->Smarty->addTemplateDir($AllTemplate);
+            if($Templates) {
+                $DefaultSys = ["Default" => APPPATH . "Views"];
+                $AllTemplate = array_merge($DefaultSys, $Templates);
+            }else{
+                $AllTemplate = ["Default" => APPPATH . "Views"];
+            }
+            $this->Smarty->setTemplateDir($AllTemplate);
             //$this->Smarty->setPluginsDir($this->pluginsDir);
             $this->Smarty->force_compile = $this->forceCompile;
             $this->Smarty->setCompileDir($this->compileDir);
@@ -113,45 +121,29 @@
             $this->Smarty->debugging = $this->Debug;
         }
 
-        public function Very () 
-        {
-            return $this->Smarty->testInstall();
-        }
-
-        public function getTemplateDir () 
-        {
-            return $this->Smarty->getTemplateDir();
-        }
-
         public function View ($View, array $Data = [])
         {
-            $selected = $this->templateDefault;
-            $ViewSelected = $this->Smarty->getTemplateDir($selected) . $View . "." . $this->fileExtension;
-            if( !$this->Smarty->templateExists($ViewSelected) ){
-                $ViewSelected = $this->Smarty->getTemplateDir("Default") . $View . "." . $this->fileExtension;
-            }
             $this->Smarty->assign($Data);
-            $this->Smarty->display($ViewSelected);
-        }
-        /*
-            $AllTemplate = [];
-            $RootFolder = $this->templatesDir;
-            $Folders = array_diff(scandir($RootFolder), ['..', '.']);
-            $Count = 0;
-            foreach ($Folders AS $Folder){
-                $fileInfo = $this->templatesDir . DIRECTORY_SEPARATOR . $Folder  . DIRECTORY_SEPARATOR ."info.txt";
-                if (file_exists($fileInfo)) {
-                    $Count++;
-                    $info = file_get_contents($fileInfo);
-                    $infoArray = explode("\n", $info);
-                    $getInfo["Name"] = str_replace("Name: ", "", $infoArray[0]);
-                    $getInfo["Author"] = str_replace("Author: ", "", $infoArray[1]);
-                    $getInfo["Link"] = str_replace("Link: ", "", $infoArray[2]);
-                    $getInfo["Date"] = str_replace("Date: ", "", $infoArray[3]);
-                    $getInfo["Version"] = str_replace("Version: ", "", $infoArray[4]);
+            $TemplateSelected = $this->templateDefault;
+            if($TemplateSelected != "Default"){
+                $getFolder = $this->templatesDir . DIRECTORY_SEPARATOR . $TemplateSelected;
+                if(!is_dir($getFolder)){
+                    $Template = $this->Smarty->getTemplateDir("Default");
+                }else{
+                    $Template = $this->Smarty->getTemplateDir($TemplateSelected);
                 }
-                $Template["Info"] = $getInfo;
-                $Template["Folder"] = $this->templatesDir . DIRECTORY_SEPARATOR . $Folder;
+            }else{
+                $Template = $this->Smarty->getTemplateDir("Default");
             }
-         */
+            $ViewSelected =  $Template . $View . "." . $this->fileExtension;
+            if( !$this->Smarty->templateExists($ViewSelected) ){
+                $getViewDefault = $this->Smarty->getTemplateDir("Default") . $View . "." . $this->fileExtension;
+                if(!$this->Smarty->templateExists($getViewDefault)){
+                    return $this->Smarty->display($this->Smarty->getTemplateDir("Default") . "/errors/ErroView" . "." . $this->fileExtension);
+                }
+                return $this->Smarty->display($getViewDefault);
+            }
+            return $this->Smarty->display($ViewSelected);
+        }
+
     }

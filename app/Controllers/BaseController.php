@@ -48,6 +48,7 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
@@ -61,6 +62,7 @@ abstract class BaseController extends Controller
         $this->Smarty->Init(); 
 
         // E.g.: $this->session = \Config\Services::session();
+
     }
 
 }
