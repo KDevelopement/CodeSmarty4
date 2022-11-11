@@ -1,4 +1,15 @@
-# CodeIgniter 4 Application Starter
+# CodeIgniter 4 With Smarty (use appstarter of CodeIgniter).
+
+All Smarty configuration is properly configured using the string `$this->$Smarty`.
+To change the settings, see the file `Smarty.php` under `app/`.
+
+Note: if the template does not exist, Smarty will look for it in the `app/views` folder.
+
+What changes is the reading of views that used to be `view();` now it's `$this->Smarty>View();`
+
+- Everything else follows the framework standards...
+
+Ah, if you want to use the codeigniter pattern, it's also available, but it won't read like Smarty (in the template system).
 
 ## What is CodeIgniter?
 
@@ -16,7 +27,7 @@ The user guide corresponding to this version of the framework can be found
 
 ## Installation & updates
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
+`composer create-project kseven/codesmarty` then `composer update` whenever
 there is a new release of the framework.
 
 When updating, check the release notes to see if there are any changes you might need to apply
